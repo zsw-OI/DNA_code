@@ -31,7 +31,6 @@ class Soliton_distribution(object):
         self.Z = np.sum(self.sum)
         self.sum /= self.Z
         self.sum = np.cumsum(self.sum)
-        print(self.sum[self.K - 1])
     def calculate(self, seed):
         random.seed(seed)
         x = random.random()

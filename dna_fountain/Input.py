@@ -6,13 +6,18 @@ from FileReader import FileReader
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", help="input file", required=True)
 parser.add_argument("-o", "--output", help="output file", default="./fountain.data")
-parser.add_argument("-l", "--length", help="dna segment length", required=True, type=int)
-parser.add_argument("-a", "--alpha", help="redundancy threshold", default=0.4, type=float)
+parser.add_argument("-l", "--length", help="dna segment length", default=128, type=int)
+parser.add_argument("-a", "--alpha", help="redundancy threshold", default=0.03, type=float)
 parser.add_argument("-d", "--delta", help="Robust Soliton distribution delta", default=0.001, type=float)
 parser.add_argument("-c", "--variance", help="Robust Soliton variance", default=0.025, type=float)
-parser.add_argument("-s","--seed", help="random seed", default=113, type=int)
+parser.add_argument("-sd","--seed", help="random seed", default=113, type=int)
+parser.add_argument("-se", "--syn_error", help="synthesize error", type=float, required=True)
+parser.add_argument("-qe", "--seq_error", help="sequence error", type=float, required=True)
+parser.add_argument("-cp", "--copies", help="number of copies", type=int, required=True)
 args = parser.parse_args()
 
+tl = args.length + 34
+valid_rate = (1 - args.syn_error)**tl * (1-(1-(1-args.seq_error)**tl)**args.copies)
 
 
 if args.length % 4 != 0:
@@ -23,8 +28,11 @@ data = reader.read()
 
 print("Encoded bytes size " + str(len(data)))
 
-encoder = Encoder(data, args.alpha, args.variance, args.delta, args.seed)
+encoder = Encoder(data, valid_rate, args.alpha, args.variance, args.delta, args.seed)
 dna_list = encoder.encode()
+
+print("Encoding density: " + str(2.0 * len(data) / len(dna_list) * args.length / tl))
+
 output_file = args.output
 print("Encoded " + str(len(dna_list)) + " DNA segments")
 with open(output_file, "w") as f:

@@ -17,7 +17,7 @@ class Decoder(object):
         self.out_edge = [[] for _ in range(K)] # from index to message
         self.in_edge = [] # from message to index
         self.val = []
-        self.ct = 0
+        self.solved = 0
     def get_data(self, dna):
         if len(dna) % 4 != 0:
             return -1, None
@@ -45,6 +45,7 @@ class Decoder(object):
             self.in_edge[v].remove(u)
             self.out_edge[u].remove(v)
             if len(self.in_edge[v]) == 1:
+                
                 u1 = self.in_edge[v][0]
                 self.result[u1] = self.val[v]
                 self.in_edge[v] = []
@@ -63,9 +64,13 @@ class Decoder(object):
                 self.out_edge[u].remove(v)
                 if len(self.in_edge[v]) == 1:
                     u1 = self.in_edge[v][0]
-                    self.result[u1] = self.val[v]
                     self.in_edge[v] = []
                     self.out_edge[u1].remove(v)
+                    
+                    if self.result[u1] != None:
+                        continue
+                    self.solved += 1
+                    self.result[u1] = self.val[v]
                     que.append(u1)
         
 
@@ -79,9 +84,11 @@ class Decoder(object):
         if len(remained_edges) == 0:
             return
         elif len(remained_edges) == 1:
+            if self.result[remained_edges[0]] != None:
+                return
             self.result[remained_edges[0]] = data
             self.update_BFS(remained_edges[0])
-            self.ct += 1
+            self.solved += 1
             return
         else:
             self.val.append(data)
@@ -103,8 +110,8 @@ class Decoder(object):
         for dna in dna_list:
             cnt += 1
 
-            if cnt % 100 == 0:
-                print("Read chunk " + str(cnt) + ", used chunk " + str(cnt1))
+            if cnt % 1000 == 0:
+                print("Read chunk " + str(cnt) + ", used chunk " + str(cnt1), ", solved / total " + str(self.solved) + "/" + str(self.K))
             
             seed, data = self.get_data(dna)
             if seed == -1 or seed in vis:
@@ -114,12 +121,14 @@ class Decoder(object):
             edges = self.extract_id(seed, d)
             cnt1 += 1
             self.insert(data, edges)
+            if self.solved == self.K:
+                break
         cnt = 0
         for i in range(self.K):
             if self.result[i] == None:
                 cnt += 1
-        
         if cnt > 0:
             print(str(cnt) + " chunks were not decoded!")
             raise Exception("Decoding failed!")
+        print("Read chunk " + str(cnt) + ", used chunk " + str(cnt1), ", solved / total " + str(self.solved) + "/" + str(self.K))
         return self.result
