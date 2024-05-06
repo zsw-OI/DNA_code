@@ -42,8 +42,12 @@ class Noise(object):
         result = []
         for dna in dna_list:
             tmp.append(self.add_noises_single(dna, self.syn_error))
+        cnt = 0
         for dna in tmp:
             for _ in range(self.copies):
+                cnt += 1
+                if cnt % 1000 == 0:
+                    print(cnt)
                 result.append(self.add_noises_single(dna, self.seq_error))
         random.shuffle(result)
         return result

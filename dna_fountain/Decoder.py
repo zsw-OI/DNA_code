@@ -3,7 +3,7 @@ import copy
 from Soliton_distribution import Soliton_distribution
 from Random import Random
 from reedsolo import RSCodec
-from collections import Counter
+from collections import Counter, deque
 import Function
 import random
 class Decoder(object):
@@ -50,6 +50,25 @@ class Decoder(object):
                 self.in_edge[v] = []
                 self.out_edge[u1].remove(v)
                 self.update(u1)
+    def update_BFS(self, u):
+        que = deque([u])
+        while que:
+            u = que.popleft()
+            ee = copy.deepcopy(self.out_edge[u])
+            for v in ee:
+                if not v in self.out_edge[u]:
+                    continue
+                self.val[v] = Function.xor(self.val[v], self.result[u])
+                self.in_edge[v].remove(u)
+                self.out_edge[u].remove(v)
+                if len(self.in_edge[v]) == 1:
+                    u1 = self.in_edge[v][0]
+                    self.result[u1] = self.val[v]
+                    self.in_edge[v] = []
+                    self.out_edge[u1].remove(v)
+                    que.append(u1)
+        
+
     def insert(self, data, edges):
         remained_edges = []
         for e in edges:
@@ -61,7 +80,7 @@ class Decoder(object):
             return
         elif len(remained_edges) == 1:
             self.result[remained_edges[0]] = data
-            self.update(remained_edges[0])
+            self.update_BFS(remained_edges[0])
             self.ct += 1
             return
         else:
@@ -85,7 +104,7 @@ class Decoder(object):
             cnt += 1
 
             if cnt % 100 == 0:
-                print("Read chunk " + str(cnt) + ", used chunk" + str(cnt1))
+                print("Read chunk " + str(cnt) + ", used chunk " + str(cnt1))
             
             seed, data = self.get_data(dna)
             if seed == -1 or seed in vis:
