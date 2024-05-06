@@ -24,11 +24,9 @@ class Encoder(object):
         DNA_list = []
         for i in range(0, self.limit):
             if i % 100 == 0:
-                print(i)
+                print("Encoding chunk " + str(i))
             seed = self.random_gen.next()
             d = self.sd_gen.calculate(seed)
-            # print(d)
-            # d = 100
             chunks = self.extract_chunks(d, seed)
             result = chunks[0]
             for i in range(1, len(chunks)):

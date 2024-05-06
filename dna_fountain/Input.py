@@ -21,13 +21,12 @@ if args.length % 4 != 0:
 reader = FileReader(args.input, int(args.length / 4))
 data = reader.read()
 
-print("Encoded bytes length " + str(len(data)))
+print("Encoded bytes size " + str(len(data)))
 
 encoder = Encoder(data, args.alpha, args.variance, args.delta, args.seed)
 dna_list = encoder.encode()
 output_file = args.output
-print(dna_list[0])
-print(len(dna_list[0]))
+print("Encoded " + str(len(dna_list)) + " DNA segments")
 with open(output_file, "w") as f:
     for dna in dna_list:
         f.write(dna + '\n')

@@ -27,9 +27,7 @@ class Decoder(object):
         try:
             corrected_data = self.codec.decode(data)[0]
         except:
-            # print("fck")
             return -1, None
-        # print(corrected_data)
         encoded_data = self.codec.encode(corrected_data)
         if encoded_data != data:
             return -1, None
@@ -39,7 +37,6 @@ class Decoder(object):
         random.seed(seed)
         return random.sample([i for i in range(0, self.K)], d)
     def update(self, u):
-        # print("haha " + str(u))
         ee = copy.deepcopy(self.out_edge[u])
         for v in ee:
             if not v in self.out_edge[u]:
@@ -60,7 +57,6 @@ class Decoder(object):
                 data = Function.xor(data, self.result[e])
             else:
                 remained_edges.append(e)
-        # print(len(remained_edges))
         if len(remained_edges) == 0:
             return
         elif len(remained_edges) == 1:
@@ -87,11 +83,12 @@ class Decoder(object):
         cnt1 = 0
         for dna in dna_list:
             cnt += 1
+
             if cnt % 100 == 0:
-                print(str(cnt) + " " + str(cnt1))
+                print("Read chunk " + str(cnt) + ", used chunk" + str(cnt1))
+            
             seed, data = self.get_data(dna)
             if seed == -1 or seed in vis:
-                # print("haha")
                 continue
             vis[seed] = True
             d = self.sd_gen.calculate(seed)
@@ -102,16 +99,8 @@ class Decoder(object):
         for i in range(self.K):
             if self.result[i] == None:
                 cnt += 1
-                # raise Exception("Decoding failed!")
-        print(cnt)
+        
         if cnt > 0:
-            # for i in range(0, len(self.in_edge)):
-            #     print(len(self.in_edge[i]))
-            for i in range(0, self.K):
-                if self.result[i] is not None and len(self.out_edge[i]) > 0:
-                    print("fcl " + str(i) + ' ' +str(len(self.out_edge[i])))
-                    for v in self.out_edge[i]:
-                        print(str(v) + " " +str(len(self.in_edge[v])), end=" ")
-                    print("")
+            print(str(cnt) + " chunks were not decoded!")
             raise Exception("Decoding failed!")
         return self.result

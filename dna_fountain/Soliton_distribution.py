@@ -13,7 +13,6 @@ class Soliton_distribution(object):
         self.Z = 0
         self.s = c * math.sqrt(K) * (math.log(K / delta))
         if self.s < 1:
-            print("haha")
             self.s = 1
         self.init()
     def init(self):
@@ -32,15 +31,12 @@ class Soliton_distribution(object):
         self.Z = np.sum(self.sum)
         self.sum /= self.Z
         self.sum = np.cumsum(self.sum)
-        print("haha")
         print(self.sum[self.K - 1])
-        # print(self.Z)
     def calculate(self, seed):
         random.seed(seed)
         x = random.random()
         for i in range(0, self.K):
             if x <= self.sum[i]:
                 return i + 1
-        # return random.choices(self.ls, weights=self.sum, k = 1)[0]
 
 
