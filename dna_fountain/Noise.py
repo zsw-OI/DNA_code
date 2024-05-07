@@ -45,32 +45,44 @@ class Noise(object):
         cnt = 0
         for dna in tqdm(tmp):
             for _ in range(self.copies):
-                # cnt += 1
-                # if cnt % 1000 == 0:
-                #     print(cnt)
                 result.append(self.add_noises_single(dna, self.seq_error))
         random.shuffle(result)
         return result
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--input", help="input file", default="./fountain.data")
-parser.add_argument("-o", "--output", help="output file", default="./noised_fountain.data")
-parser.add_argument("-se", "--syn_error", help="synthesize error", default=0.001, type=float)
-parser.add_argument("-qe", "--seq_error", help="sequence error", default=0.01, type=float)
-parser.add_argument("-cp","--copies", help="number of copies", default=444, type=int)
-args = parser.parse_args()
-
-noiser = Noise(args.syn_error, args.seq_error, args.copies)
-
-dna_list = []
-with open(args.input, "r") as f:
-    st = f.readline()
-    while st:
-        dna_list.append(st.strip())
+def main(input = "./fountain.data", output = "./noised_fountain.data", syn_error = 0.001, seq_error = 0.01, copies = 444):
+    noiser = Noise(syn_error, seq_error, copies)
+    dna_list = []
+    with open(input, "r") as f:
         st = f.readline()
+        while st:
+            dna_list.append(st.strip())
+            st = f.readline()
 
-dna_list = noiser.add_noises(dna_list)
-with open(args.output, "w") as f:
-    for dna in dna_list:
-        f.write(dna + '\n')
-exit(0)
+    dna_list = noiser.add_noises(dna_list)
+    with open(output, "w") as f:
+        for dna in dna_list:
+            f.write(dna + '\n')
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input", help="input file", default="./fountain.data")
+    parser.add_argument("-o", "--output", help="output file", default="./noised_fountain.data")
+    parser.add_argument("-se", "--syn_error", help="synthesize error", default=0.001, type=float)
+    parser.add_argument("-qe", "--seq_error", help="sequence error", default=0.01, type=float)
+    parser.add_argument("-cp","--copies", help="number of copies", default=444, type=int)
+    args = parser.parse_args()
+    main(input = args.input, output = args.output, syn_error = args.syn_error, seq_error = args.seq_error, copies = args.copies)
+    # noiser = Noise(args.syn_error, args.seq_error, args.copies)
+
+    # dna_list = []
+    # with open(args.input, "r") as f:
+    #     st = f.readline()
+    #     while st:
+    #         dna_list.append(st.strip())
+    #         st = f.readline()
+
+    # dna_list = noiser.add_noises(dna_list)
+    # with open(args.output, "w") as f:
+    #     for dna in dna_list:
+    #         f.write(dna + '\n')
+    exit(0)

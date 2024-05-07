@@ -6,6 +6,7 @@ from reedsolo import RSCodec
 from collections import Counter, deque
 import Function
 import random
+from tqdm import tqdm
 class Decoder(object):
     def __init__(self, K, dna_list, sd_c, sd_delta, seed = 114514):
         self.random_gen = Random(seed)
@@ -107,11 +108,11 @@ class Decoder(object):
         vis = dict()
         cnt = 0
         cnt1 = 0
-        for dna in dna_list:
+        for dna in tqdm(dna_list):
             cnt += 1
 
-            if cnt % 1000 == 0:
-                print("Read chunk " + str(cnt) + ", used chunk " + str(cnt1), ", solved / total " + str(self.solved) + "/" + str(self.K))
+            # if cnt % 1000 == 0:
+            #     print("Read chunk " + str(cnt) + ", used chunk " + str(cnt1), ", solved / total " + str(self.solved) + "/" + str(self.K))
             
             seed, data = self.get_data(dna)
             if seed == -1 or seed in vis:
@@ -123,12 +124,13 @@ class Decoder(object):
             self.insert(data, edges)
             if self.solved == self.K:
                 break
-        cnt = 0
+        ccnt = 0
         for i in range(self.K):
             if self.result[i] == None:
-                cnt += 1
-        if cnt > 0:
-            print(str(cnt) + " chunks were not decoded!")
-            raise Exception("Decoding failed!")
+                ccnt += 1
+        if ccnt > 0:
+            print("Decoding failed!")
+            print(str(ccnt) + " chunks were not decoded!")
+            return None, 1.0 - ccnt / self.K
         print("Read chunk " + str(cnt) + ", used chunk " + str(cnt1), ", solved / total " + str(self.solved) + "/" + str(self.K))
-        return self.result
+        return self.result, 1.0

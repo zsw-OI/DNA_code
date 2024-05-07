@@ -13,8 +13,8 @@ class Encoder(object):
         self.chunks = chunks
         self.sd_gen = Soliton_distribution(self.K, sd_c, sd_delta)
         self.limit = self.K * self.sd_gen.Z / valid_rate * (1 + alpha)
-        self.limit = int(math.ceil(self.limit))
-        # self.limit = int(math.ceil((1 + alpha) * self.K))
+        # self.limit = int(math.ceil(self.limit))
+        self.limit = int(math.ceil((1 + alpha) * self.limit))
         self.codec = RSCodec(2)
     def extract_chunks(self, d, seed):
         random.seed(seed)
