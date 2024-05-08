@@ -1,5 +1,5 @@
 import argparse
-from dna_fountain.src.Decoder import Decoder
+from Decoder import Decoder
 def main(length, input = "./noised_fountain.data", output = "./decoded.data", delta = 0.001, variance = 0.025, seed = 113):
     dna_list = []
     with open(input, "r") as f:
@@ -29,20 +29,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
     main(length = args.length, input = args.input, output = args.output, delta = args.delta, variance = args.variance, seed = args.seed)
     exit(0)
-    # dna_list = []
-    # with open(args.input, "r") as f:
-    #     st = f.readline()
-    #     while st:
-
-    #         dna_list.append(st.strip())
-    #         st = f.readline()
-    # decoder = Decoder(args.length, dna_list, args.variance, args.delta, args.seed)
-    # result = decoder.decode()
-    # if result is None:
-    #     exit(1)
-    # output_file = args.output
-
-    # with open(output_file, "wb") as f:
-    #     for data in result:
-    #         f.write(data)
-    # exit(0)

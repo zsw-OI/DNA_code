@@ -1,6 +1,6 @@
 import copy
 
-from dna_fountain.src.Soliton_distribution import Soliton_distribution
+from Soliton_distribution import Soliton_distribution
 from Random import Random
 from reedsolo import RSCodec
 from collections import Counter, deque

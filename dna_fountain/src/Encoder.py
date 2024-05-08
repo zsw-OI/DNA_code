@@ -1,5 +1,5 @@
 from Random import Random
-from dna_fountain.src.Soliton_distribution import Soliton_distribution
+from Soliton_distribution import Soliton_distribution
 from reedsolo import RSCodec
 import math
 import random
@@ -13,7 +13,6 @@ class Encoder(object):
         self.chunks = chunks
         self.sd_gen = Soliton_distribution(self.K, sd_c, sd_delta)
         self.limit = self.K * self.sd_gen.Z / valid_rate * (1 + alpha)
-        # self.limit = int(math.ceil(self.limit))
         self.limit = int(math.ceil((1 + alpha) * self.limit))
         self.codec = RSCodec(2)
     def extract_chunks(self, d, seed):
@@ -25,7 +24,6 @@ class Encoder(object):
 
     def encode(self):
         DNA_list = []
-        # print("Encoding " + str(self.limit) + " chunks")
         for i in tqdm(range(0, self.limit)):
             seed = self.random_gen.next()
             d = self.sd_gen.calculate(seed)

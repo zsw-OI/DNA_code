@@ -1,8 +1,8 @@
 import sys
 import argparse
 
-from dna_fountain.src.Encoder import Encoder
-from dna_fountain.src.FileReader import FileReader
+from Encoder import Encoder
+from FileReader import FileReader
 def main(input, syn_error, seq_error, copies, output = "./fountain.data", length = 128, alpha = 0.03, delta = 0.001, variance = 0.025, seed = 113):
     tl = length + 34
     valid_rate = (1 - syn_error)**tl * (1-(1-(1-seq_error)**tl)**copies)
@@ -42,29 +42,5 @@ if __name__ == '__main__' :
     
 
     l,_ = main(input = args.input, output = args.output, length = args.length, alpha = args.alpha, delta = args.delta, variance = args.variance, seed = args.seed, syn_error = args.syn_error, seq_error = args.seq_error, copies = args.copies)
-    # print(l, _)
     exit(l)
-
-    # tl = args.length + 34
-    # valid_rate = (1 - args.syn_error)**tl * (1-(1-(1-args.seq_error)**tl)**args.copies)
-
-    # if args.length % 4 != 0:
-    #     raise ValueError("length is not a multiple of 4")
-
-    # reader = FileReader(args.input, int(args.length / 4))
-    # data = reader.read()
-
-    # print("Encoded bytes size " + str(len(data)))
-
-    # encoder = Encoder(data, valid_rate, args.alpha, args.variance, args.delta, args.seed)
-    # dna_list = encoder.encode()
-
-    # print("Encoding density: " + str(2.0 * len(data) / len(dna_list) * args.length / tl))
-
-    # output_file = args.output
-    # print("Encoded " + str(len(dna_list)) + " DNA segments")
-    # with open(output_file, "w") as f:
-    #     for dna in dna_list:
-    #         f.write(dna + '\n')
-    # exit(0)
 
