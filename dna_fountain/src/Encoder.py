@@ -1,5 +1,5 @@
 from Random import Random
-from Soliton_distribution import Soliton_distribution
+from dna_fountain.src.Soliton_distribution import Soliton_distribution
 from reedsolo import RSCodec
 import math
 import random

@@ -1,8 +1,8 @@
 import sys
 import argparse
 
-from Encoder import Encoder
-from FileReader import FileReader
+from dna_fountain.src.Encoder import Encoder
+from dna_fountain.src.FileReader import FileReader
 def main(input, syn_error, seq_error, copies, output = "./fountain.data", length = 128, alpha = 0.03, delta = 0.001, variance = 0.025, seed = 113):
     tl = length + 34
     valid_rate = (1 - syn_error)**tl * (1-(1-(1-seq_error)**tl)**copies)
