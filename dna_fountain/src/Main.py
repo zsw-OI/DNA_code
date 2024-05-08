@@ -13,10 +13,10 @@ if args.test == True:
     # syn_error_list = [0.0001, 0.001, 0.01]
     # seq_error_list = [0.002, 0.005, 0.01]
     error_list = [0.0001, 0.001, 0.01]
-    copies_list = [50, 100, 200, 400]
-    file_list = ["./120.data", "./203.data", "./521.data", "./741.data", "./1136.data"]
+    copies_list = [50, 100, 200]
+    file_list = ["./120.data", "./203.data", "./521.data"]
     alpha_list = [0.01, 0.005, 0, -0.005, -0.01]
-    length_list = [128, 192, 256]
+    length_list = [128, 256]
     # syn_error_list = [0.001, 0.002]
     # seq_error_list = [0.001]
     # error_list = [0.001]
@@ -24,6 +24,11 @@ if args.test == True:
     # file_list = ["./120.data", "./203.data"]
     # alpha_list = [0.03, -0.5, 0.02]
     # length_list = [128]
+    error_list = [0.01]
+    copies_list = [50, 100, 200]
+    file_list = ["./120.data", "./203.data", "./521.data"]
+    alpha_list = [-0.1, -0.125, -0.15]
+    length_list = [128]
     tot = len(error_list) * len(copies_list) * len(file_list) * len(length_list) * len(alpha_list)
     cnt = 0
     with open("testdata.out", "w") as f:
