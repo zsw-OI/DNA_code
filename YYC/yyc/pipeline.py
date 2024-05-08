@@ -11,7 +11,10 @@ Function(s): After initializing the encoding or decoding method,
 """
 import sys
 from yyc.utils import log, data_handle, index_operator, model_saver
+from reedsolo import RSCodec
 
+def symbol_to_binary(symbol, bits_per_symbol):
+    return [int(x) for x in format(symbol, f'0{bits_per_symbol}b')]
 
 # noinspection PyProtectedMember
 def encode(method, input_path, output_path,
@@ -59,20 +62,43 @@ def encode(method, input_path, output_path,
     if need_index:
         input_matrix = index_operator.connect_all(input_matrix, need_log)
 
+    length = len(input_matrix[0])
+    print(f'length = {length}')
+    # Example parameters
+    bits_per_symbol = 8  # This depends on the maximum symbol value, e.g., 255 requires 8 bits
+
+    # Assuming `input_matrix` is already filled with your input binary data
+    rs = RSCodec(2)  # This would still use Reed-Solomon with non-binary symbols
+    encoded_matrix = [rs.encode(item) for item in input_matrix]
+
+    # Convert each symbol in the encoded matrix to a binary format
+    binary_encoded_matrix = []
+    for encoded_row in encoded_matrix:
+        binary_row = []
+        cnt = 0
+        for symbol in encoded_row:
+            cnt += 1
+            if cnt >= length:
+                binary_row.extend(symbol_to_binary(symbol, bits_per_symbol))
+            else:
+                binary_row.append(symbol)
+        binary_encoded_matrix.append(binary_row)
+
     if verify is not None:
         input_matrix = verify.add_for_matrix(input_matrix, need_log)
 
-    dna_sequences = method.encode(input_matrix, size, need_log)
+    print(binary_encoded_matrix[0])
+    dna_sequences = method.encode(binary_encoded_matrix, size, need_log)
 
     if model_path is not None:
-        model_saver.save_model(model_path, {"method": method, "verify": verify})
+        model_saver.save_model(model_path, {"method": method, "verify": verify, "length": length})
 
     data_handle.write_dna_file(output_path, dna_sequences, need_log)
 
 
 # noinspection PyProtectedMember
 def decode(method=None, model_path=None, input_path=None, output_path=None,
-           verify=None, has_index=True, need_log=False):
+           verify=None, has_index=True, need_log=False, length = 133):
     """
     introduction: Use the selected method, convert DNA sequence set to the binary
                   file and output the binary file.
@@ -118,16 +144,34 @@ def decode(method=None, model_path=None, input_path=None, output_path=None,
             model = model_saver.load_model(model_path)
             method = model.get("method")
             verify = model.get("verify")
+            length = model.get("length")
 
         dna_sequences = data_handle.read_dna_file(input_path, need_log)
 
         output_matrix, size = method.decode(dna_sequences, need_log)
 
-        if verify is not None:
-            output_matrix = verify.verify_for_matrix(output_matrix, need_log)
+        # decode_matrix = []
+        # for item in output_matrix:
+        #     cur = []
+        #     for i in range(len(item)):
+        #         if i < length:
+        #             cur.append(item[i])
+        #         else:
+        #             val = 0
+        #             for j in range(8):
+        #                 if i + j >= len(item):
+        #                     break
+        #                 val += item[i+j] * (2 ** (7-j))
+        #             print(val)
+        #             cur.append(val)
+        #             i += 7
+        #     decode_matrix.append(cur) 
+        # if verify is not None:
+        #     output_matrix = verify.verify_for_matrix(output_matrix, need_log)
 
-        if has_index:
-            indexes, data_set = index_operator.divide_all(output_matrix, need_log)
-            output_matrix = index_operator.sort_order(indexes, data_set, need_log)
+        # if has_index:
+        #     indexes, data_set = index_operator.divide_all(decode_matrix, need_log)
+        #     output_matrix = index_operator.sort_order(indexes, data_set, need_log)
 
+        # print(output_matrix[0])
         data_handle.write_all_from_binary(output_path, output_matrix, size, need_log)
