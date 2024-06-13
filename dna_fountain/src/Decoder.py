@@ -6,12 +6,14 @@ from reedsolo import RSCodec
 from collections import Counter, deque
 import Function
 import random
+from Trie import Trie
 from tqdm import tqdm
 class Decoder(object):
     def __init__(self, K, dna_list, sd_c, sd_delta, seed = 114514):
         self.random_gen = Random(seed)
         self.sd_gen = Soliton_distribution(K, sd_c, sd_delta)
-        self.dna_list = dna_list
+        self.dna_list = list(set(dna_list))
+        self.dna_list_pro = []
         self.codec = RSCodec(2)
         self.result = [None for _ in range(K)]
         self.K = K
@@ -19,6 +21,13 @@ class Decoder(object):
         self.in_edge = [] # from message to index
         self.val = []
         self.solved = 0
+        self.prefix_trie = Trie()
+        self.suffix_trie = Trie()
+        for dna in self.dna_list:
+            self.prefix_trie.insert(dna)
+            self.suffix_trie.insert(dna[::-1])
+        self.copies_num = len(dna_list) // K
+
     def get_data(self, dna):
         if len(dna) % 4 != 0:
             return -1, None
@@ -101,14 +110,58 @@ class Decoder(object):
             self.in_edge.append(in_e)
             return
 
+    def count_edit_distance_one(self, dna):
+        n = len(dna)
+        half_length = n // 2
+
+        prefix = dna[:half_length]
+        suffix = dna[-half_length:]
+
+        # 统计相同前缀 >= len(dna)/2 或 相同后缀 >= len(dna)/2 的 dna 数量
+        count_prefix = self.prefix_trie.search_with_prefix(prefix)
+        count_suffix = self.suffix_trie.search_with_prefix(suffix[::-1])
+
+        return count_prefix + count_suffix
+
     def decode(self):
-        counter = Counter(self.dna_list)
-        sorted_counter = sorted(counter.items(), key=lambda x: x[1], reverse=True)
-        dna_list = [t[0] for t in sorted_counter]
+        
         vis = dict()
         cnt = 0
         cnt1 = 0
-        for dna in tqdm(dna_list):
+        bases = ['A', 'T', 'C', 'G']
+
+        for dna in tqdm(self.dna_list):
+            if not dna:
+                continue
+            if len(dna) % 4 == 0:
+                self.dna_list_pro.append(dna)
+                for pos in range(len(dna)):
+                    for new_base in bases:
+                        if new_base == dna[pos]:
+                            continue
+                        new_dna = dna[:pos] + new_base + dna[pos+1:]
+                        if self.count_edit_distance_one(new_dna) >= 0.9 * self.copies_num:
+                            self.dna_list_pro.append(new_dna)
+
+            elif len(dna) % 4 == 1:
+                for pos in range(len(dna)):
+                    new_dna = dna[:pos] + dna[pos+1:]
+                    if self.count_edit_distance_one(new_dna) >= 0.9 * self.copies_num:
+                        self.dna_list_pro.append(new_dna)
+
+            elif len(dna) % 4 == 3:
+                for pos in range(len(dna)):
+                    for new_base in bases:
+                        new_dna = dna[:pos] + new_base + dna[pos:]
+                        if self.count_edit_distance_one(new_dna) >= 0.9 * self.copies_num:
+                            self.dna_list_pro.append(new_dna)
+                for new_base in bases:
+                    new_dna = dna + new_base
+                    if self.count_edit_distance_one(new_dna) >= 0.9 * self.copies_num:
+                        self.dna_list_pro.append(new_dna)
+
+        self.dna_list_pro = list(set(self.dna_list_pro))
+        for dna in tqdm(self.dna_list_pro):
             cnt += 1
 
             # if cnt % 1000 == 0:
